@@ -6,11 +6,9 @@ import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import java.util.Date;
 
@@ -51,7 +49,7 @@ public class DailyJobService extends JobService {
 
     private void startWorkOnNewThread(final JobParameters jobParameters) {
 
-        notification();
+        notificationService();
 
         new Thread() {
             @Override
@@ -64,24 +62,11 @@ public class DailyJobService extends JobService {
                     FileOperations.writeFile(path, "sri rama jayam");
                 }
             }
-        };
+        }.start();
     }
 
-    private void notification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("daily writing: SRJ")
-                .setContentText("sri rama jayam")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(1, builder.build());
-    }
-
-    private void doWork(JobParameters jobParameters) {
-        Log.d(TAG, "Job finished!");
-        isWorking = false;
-        boolean needsReschedule = false;
-        jobFinished(jobParameters, needsReschedule);
+    private void notificationService() {
+        Intent intent = new Intent(this, NotificationIntentService.class);
+        startService(intent);
     }
 }
